@@ -11,7 +11,6 @@ WebVisionPro is an advanced, AI-powered website analysis tool that provides comp
 - **Usability Report** 🖱️: Assesses navigation, information architecture, and overall user experience.
 - **Accessibility Evaluation** ♿: Checks compliance with WCAG guidelines and identifies areas for improvement.
 - **Performance Analysis** ⚡: Examines load times, responsiveness, and cross-browser compatibility.
-- **Content Review** 📝: Analyzes the clarity, relevance, and engagement of the website's content.
 
 ## 🛠️ Technology Stack
 
@@ -25,13 +24,16 @@ WebVisionPro is an advanced, AI-powered website analysis tool that provides comp
 
 1. Clone the repository:
    ```
-   git clone https://github.com/bstephens2002/webvisionpro.git
-   cd webvisionpro
+   git clone https://github.com/bstephens2002/Web-Vision-Pro.git
+   cd Web-Vision-Pro
    ```
 
 2. Install the required dependencies:
    ```
    pip install -r requirements.txt
+   ```
+   ```
+   install playwright
    ```
 
 3. Set up your environment variables:

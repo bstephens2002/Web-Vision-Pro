@@ -1,0 +1,6 @@
+pyautogen
+gradio
+groq
+playwright
+beautifulsoup4
+anthropic
