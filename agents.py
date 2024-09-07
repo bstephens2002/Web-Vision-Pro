@@ -1,42 +1,47 @@
 import autogen
-import config
+import os
 
-def create_agent_with_depth_instruction(name, base_instruction, llm_config):
+# Groq API configuration
+config_list = [
+    {
+        "model": "llama3-70b-8192",  # You can change this to other Groq models as needed
+        "api_key": os.environ.get("GROQ_API_KEY"),
+        "api_type": "groq"
+    }
+]
+
+def create_agent_with_depth_instruction(name, base_instruction):
     return autogen.AssistantAgent(
         name=name,
         system_message=f"{base_instruction} Adjust your analysis depth based on the instruction provided in each request.",
-        llm_config=llm_config,
+        llm_config={"config_list": config_list},
     )
 
 # Define agents with depth-aware instructions
 design_analysis_assistant = create_agent_with_depth_instruction(
     "design_analysis_assistant",
-    "Analyze the website's visual design, focusing on color schemes, typography, layout, and visual hierarchy.",
-    config.llm_config_gpt4o_mini
+    "Analyze the website's visual design, focusing on color schemes, typography, layout, and visual hierarchy."
 )
 
 usability_expert = create_agent_with_depth_instruction(
     "usability_expert",
-    "Evaluate the website's usability and user experience, including navigation, interaction design, and consistency.",
-    config.llm_config_gpt4o_mini
+    "Evaluate the website's usability and user experience, including navigation, interaction design, and consistency."
 )
 
 accessibility_evaluator = create_agent_with_depth_instruction(
     "accessibility_evaluator",
-    "Assess the website's accessibility features and compliance with WCAG guidelines.",
-    config.llm_config_gpt4o_mini
+    "Assess the website's accessibility features and compliance with WCAG guidelines."
 )
 
 performance_analyst = create_agent_with_depth_instruction(
     "performance_analyst",
-    "Evaluate the website's technical performance, including load times, responsiveness, and resource management.",
-    config.llm_config_gpt4o_mini
+    "Evaluate the website's technical performance, including load times, responsiveness, and resource management."
 )
 
 summarization_agent = autogen.AssistantAgent(
     name="summarization_agent",
     system_message="Compile and synthesize the insights from all other agents into a concise summary report. Adjust the level of detail based on the analysis depth provided.",
-    llm_config=config.llm_config_gpt4o_mini
+    llm_config={"config_list": config_list},
 )
 
 user_proxy = autogen.UserProxyAgent(
@@ -56,7 +61,7 @@ agents = [
 ]
 
 group_chat = autogen.GroupChat(agents=agents, messages=[], max_round=6)
-manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=config.llm_config_gpt4o_mini)
+manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list})
 
 def customize_analysis_depth(depth):
     if depth == "quick":

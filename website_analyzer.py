@@ -1,13 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright
-import anthropic
 import base64
 import os
 from dotenv import load_dotenv
 from datetime import datetime
 from PIL import Image
 import io
+from groq import Groq
 
 load_dotenv()
 
@@ -28,64 +28,55 @@ def analyze_website(url):
         page = browser.new_page()
         page.goto(url)
         
-        # Set viewport size to a more reasonable size (1920x1080)
         page.set_viewport_size({"width": 1920, "height": 1080})
-        
-        # Capture the viewport
         page.screenshot(path=screenshot_path, full_page=False)
         
         browser.close()
 
-    # Create a thumbnail
     with Image.open(screenshot_path) as img:
-        # Create a thumbnail
         img.thumbnail((400, 300))
         img.save(thumbnail_path, "PNG")
         
-        # Resize the original screenshot if it's too large
         if img.width > 1920 or img.height > 1080:
             img.thumbnail((1920, 1080), Image.Resampling.LANCZOS)
         
-        # Save with compression
         img_byte_arr = io.BytesIO()
         img.save(img_byte_arr, format='PNG', optimize=True, quality=85)
         img_byte_arr = img_byte_arr.getvalue()
 
-    # Encode the compressed image to base64
     encoded_image = base64.b64encode(img_byte_arr).decode('utf-8')
 
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+    llava_model = 'llava-v1.5-7b-4096-preview'
 
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "text",
-                    "text": f"Please analyze this website and provide a detailed description. Here's the text content:\n\n{text[:15000]}"
-                },
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/png",
-                        "data": encoded_image
-                    }
-                }
-            ],
-        }
-    ]
+    prompt = f"""Please analyze this website and provide a detailed description. 
+    Consider the visual layout, color scheme, and main elements visible in the image. 
+    Also analyze the following text content from the website:
 
-    response = client.messages.create(
-        model="claude-3-5-sonnet-20240620",
-        max_tokens=1000,
-        messages=messages
+    {text[:15000]}
+
+    Provide a comprehensive analysis of both the visual and textual elements."""
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{encoded_image}",
+                        },
+                    },
+                ],
+            }
+        ],
+        model=llava_model,
+        max_tokens=1000
     )
 
-    analysis = response.content[0].text
-
-    # Clean up the screenshot file, but keep the thumbnail
-    #os.remove(screenshot_path)
+    analysis = chat_completion.choices[0].message.content
 
     return analysis, thumbnail_path
 
