@@ -15,6 +15,10 @@ def analyze_website(url):
     if not url.startswith(('http://', 'https://')):
         url = 'https://' + url
 
+    # Ensure the thumbnail and screenshot directories exist
+    os.makedirs('thumbnails', exist_ok=True)
+    os.makedirs('screenshots', exist_ok=True)
+
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
     text = soup.get_text(separator=' ', strip=True)

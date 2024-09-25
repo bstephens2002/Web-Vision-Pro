@@ -6,8 +6,8 @@ import os
 def evaluate_website_design(website_url, analysis_depth):
     initial_analysis, thumbnail_path = analyze_website(website_url)
     
-    # Use the new analyze_website function from agents.py
-    results = agents.analyze_website(website_url, analysis_depth)
+    # Pass the initial_analysis to the agents
+    results = agents.analyze_website(website_url, analysis_depth, initial_analysis)
     
     if "error" in results:
         return (
