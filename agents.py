@@ -73,13 +73,14 @@ def customize_analysis_depth(depth):
     else:
         return "Conduct a standard analysis covering all key areas."
 
-def analyze_website(website_url, analysis_depth="standard"):
+def analyze_website(website_url, analysis_depth="standard", initial_analysis=""):
     depth_instruction = customize_analysis_depth(analysis_depth)
     
     try:
         user_proxy.initiate_chat(
             manager,
             message=f"Evaluate the design of the website: {website_url}. {depth_instruction}\n"
+                    f"Consider this initial analysis based on visual and textual elements:\n{initial_analysis}\n\n"
                     f"Coordinate these evaluations:\n"
                     f"1. Design Analysis\n"
                     f"2. Usability Report\n"
